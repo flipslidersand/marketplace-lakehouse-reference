@@ -1,0 +1,9 @@
+bundle:
+  name: marketplace-lakehouse-reference
+
+targets:
+  dev:
+    mode: development
+    default: true
+    workspace:
+      host: ${DATABRICKS_HOST}
