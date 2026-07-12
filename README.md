@@ -1,8 +1,13 @@
 # Marketplace Lakehouse Reference
 
 ![CI](https://github.com/flipslidersand/marketplace-lakehouse-reference/actions/workflows/ci.yml/badge.svg)
+![Tests](https://img.shields.io/badge/tests-31%2F31%20passing-brightgreen)
 ![Python](https://img.shields.io/badge/python-3.12-blue)
 ![License](https://img.shields.io/badge/license-Apache%202.0-green)
+
+A working end-to-end Medallion Architecture pipeline (Bronze → Silver → Gold) built with PySpark and Delta Lake — translating a fragmented marketplace data problem into measurable business outcomes, runnable locally in under two minutes.
+
+![Dashboard](docs/assets/dashboard.png)
 
 This repository demonstrates a technical evaluation for a fictional digital-native marketplace whose order, inventory, and pricing data is fragmented across operational systems.
 
@@ -46,7 +51,7 @@ Invalid records — missing IDs, malformed timestamps, zero quantities — have 
 
 ## Architecture
 
-```
+```text
 Synthetic Data Generator
          |
          v
@@ -104,7 +109,7 @@ Negative inventory quantities are flagged with `negative_stock=true` but are not
 
 ## Repository Structure
 
-```
+```text
 marketplace-lakehouse-reference/
 ├── README.md
 ├── LICENSE                         # Apache 2.0
@@ -157,61 +162,20 @@ marketplace-lakehouse-reference/
 - Python 3.10+
 - Java 11+ (required by PySpark)
 
-### Install
+### Quick Start (local, ~2 minutes)
 
 ```bash
-# Pipeline + tests
-pip install -e ".[dev]"
+git clone https://github.com/flipslidersand/marketplace-lakehouse-reference
+cd marketplace-lakehouse-reference
 
-# Dashboard (Streamlit + Databricks SQL connector)
-pip install -e ".[app]"
+python3 -m venv .venv && source .venv/bin/activate
+pip install -e ".[dev]" pyarrow
+
+python3 run_pipeline.py          # Bronze → Silver → Gold, exports parquet
+streamlit run app/main.py        # Dashboard at http://localhost:8501
 ```
 
-### Generate Synthetic Data
-
-```bash
-python3 src/generator/generate_events.py
-```
-
-This creates `data/samples/orders.jsonl`, `inventory.csv`, and `price_events.jsonl`.
-
-The generator intentionally produces imperfect data: null values, duplicate order IDs, invalid timestamps, negative inventory quantities, and extreme price changes.
-
----
-
-## Running the Pipeline
-
-The pipeline can be run locally using PySpark in local mode, or on a Databricks workspace using the provided notebooks.
-
-### Local Execution
-
-```python
-from pyspark.sql import SparkSession
-from marketplace_lakehouse import bronze, silver, gold
-
-spark = (
-    SparkSession.builder
-    .appName("marketplace-lakehouse")
-    .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension")
-    .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog")
-    .getOrCreate()
-)
-
-# Bronze
-bronze.ingest_orders(spark, "data/samples/orders.jsonl", "data/delta/bronze/orders")
-bronze.ingest_inventory(spark, "data/samples/inventory.csv", "data/delta/bronze/inventory")
-bronze.ingest_price_events(spark, "data/samples/price_events.jsonl", "data/delta/bronze/price_events")
-
-# Silver
-silver.process_orders(spark, "data/delta/bronze/orders", "data/delta/silver/orders", "data/delta/silver/quarantined_orders")
-silver.process_inventory(spark, "data/delta/bronze/inventory", "data/delta/silver/inventory", "data/delta/silver/quarantined_inventory")
-silver.process_price_events(spark, "data/delta/bronze/price_events", "data/delta/silver/price_events", "data/delta/silver/quarantined_price_events")
-
-# Gold
-gold.build_daily_revenue(spark, "data/delta/silver/orders", "data/delta/gold/daily_revenue")
-gold.build_inventory_risk(spark, "data/delta/silver/orders", "data/delta/silver/inventory", "data/delta/gold/inventory_risk")
-gold.build_price_anomalies(spark, "data/delta/silver/price_events", "data/delta/gold/price_anomalies")
-```
+`run_pipeline.py` generates synthetic data on first run, then executes all three layers and prints a summary of clean vs. quarantined record counts per table.
 
 ### Databricks Workspace
 
