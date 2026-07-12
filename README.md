@@ -1,5 +1,9 @@
 # Marketplace Lakehouse Reference
 
+![CI](https://github.com/flipslidersand/marketplace-lakehouse-reference/actions/workflows/ci.yml/badge.svg)
+![Python](https://img.shields.io/badge/python-3.12-blue)
+![License](https://img.shields.io/badge/license-Apache%202.0-green)
+
 This repository demonstrates a technical evaluation for a fictional digital-native marketplace whose order, inventory, and pricing data is fragmented across operational systems.
 
 The goal is not to demonstrate PySpark syntax. The goal is to show how a customer problem can be translated into explicit success criteria, a lakehouse architecture, an executable data pipeline, and a consumer-facing application.
