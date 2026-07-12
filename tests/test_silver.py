@@ -124,7 +124,8 @@ class TestOrdersQuarantine:
         # Only one ORD-001 should survive (latest: 02:00)
         assert clean.count() == 2
         dup_order = clean.filter(F.col("order_id") == "ORD-001").first()
-        assert "02:00" in str(dup_order["ordered_at"])
+        # Later record has quantity=2; time string comparison is timezone-dependent
+        assert dup_order["quantity"] == 2
         # The earlier duplicate is quarantined
         assert quarantine.filter(
             F.col("_quarantine_reason") == "DUPLICATE_ORDER"

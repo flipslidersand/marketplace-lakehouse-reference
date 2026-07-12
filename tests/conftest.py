@@ -5,11 +5,12 @@ Uses local mode with Delta Lake extensions.
 
 import pytest
 from pyspark.sql import SparkSession
+from delta import configure_spark_with_delta_pip
 
 
 @pytest.fixture(scope="session")
 def spark():
-    session = (
+    builder = (
         SparkSession.builder
         .appName("marketplace-lakehouse-tests")
         .master("local[*]")
@@ -17,8 +18,8 @@ def spark():
         .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog")
         .config("spark.sql.shuffle.partitions", "4")
         .config("spark.driver.memory", "2g")
-        .getOrCreate()
     )
+    session = configure_spark_with_delta_pip(builder).getOrCreate()
     session.sparkContext.setLogLevel("WARN")
     yield session
     session.stop()

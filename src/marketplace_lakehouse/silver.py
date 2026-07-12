@@ -48,7 +48,7 @@ def validate_orders(df: DataFrame) -> tuple[DataFrame, DataFrame]:
         df
         .withColumn("quantity_int", F.col("quantity").cast(LongType()))
         .withColumn("unit_price_dbl", F.col("unit_price").cast(DoubleType()))
-        .withColumn("ordered_at_ts", F.to_timestamp("ordered_at"))
+        .withColumn("ordered_at_ts", F.try_to_timestamp(F.col("ordered_at")))
     )
 
     # Validation flags
@@ -88,34 +88,20 @@ def validate_orders(df: DataFrame) -> tuple[DataFrame, DataFrame]:
 
     quarantine = invalid.unionByName(duplicates, allowMissingColumns=True)
 
-    # Finalize clean columns
-    clean_cols = [
+    # Select with explicit aliases to avoid AMBIGUOUS_REFERENCE from typed columns
+    # (typed has both "quantity"/StringType and "quantity_int"/LongType)
+    clean = valid.select(
         "order_id", "product_id", "channel",
-        "quantity_int", "unit_price_dbl", "ordered_at_ts",
+        F.col("quantity_int").alias("quantity"),
+        F.col("unit_price_dbl").alias("unit_price"),
+        F.col("ordered_at_ts").alias("ordered_at"),
         "_ingested_at", "_source_file",
-    ]
-    clean = (
-        valid
-        .withColumnRenamed("quantity_int", "quantity")
-        .withColumnRenamed("unit_price_dbl", "unit_price")
-        .withColumnRenamed("ordered_at_ts", "ordered_at")
-        .select("order_id", "product_id", "channel",
-                "quantity", "unit_price", "ordered_at",
-                "_ingested_at", "_source_file")
     )
 
-    quarantine_cols = [
+    quarantine_out = quarantine.select(
         "order_id", "product_id", "channel",
         "quantity", "unit_price", "ordered_at",
         "_ingested_at", "_source_file", "_quarantine_reason",
-    ]
-    quarantine_out = (
-        quarantine
-        .select(
-            "order_id", "product_id", "channel",
-            "quantity", "unit_price", "ordered_at",
-            "_ingested_at", "_source_file", "_quarantine_reason",
-        )
     )
 
     return clean, quarantine_out
@@ -142,7 +128,7 @@ def validate_inventory(df: DataFrame) -> tuple[DataFrame, DataFrame]:
     typed = (
         df
         .withColumn("quantity_int", F.col("quantity").cast(LongType()))
-        .withColumn("updated_at_ts", F.to_timestamp("updated_at"))
+        .withColumn("updated_at_ts", F.try_to_timestamp(F.col("updated_at")))
     )
 
     typed = (
@@ -206,7 +192,7 @@ def validate_price_events(df: DataFrame) -> tuple[DataFrame, DataFrame]:
         df
         .withColumn("old_price_dbl", F.col("old_price").cast(DoubleType()))
         .withColumn("new_price_dbl", F.col("new_price").cast(DoubleType()))
-        .withColumn("changed_at_ts", F.to_timestamp("changed_at"))
+        .withColumn("changed_at_ts", F.try_to_timestamp(F.col("changed_at")))
     )
 
     typed = (
