@@ -160,7 +160,11 @@ marketplace-lakehouse-reference/
 ### Install
 
 ```bash
+# Pipeline + tests
 pip install -e ".[dev]"
+
+# Dashboard (Streamlit + Databricks SQL connector)
+pip install -e ".[app]"
 ```
 
 ### Generate Synthetic Data
