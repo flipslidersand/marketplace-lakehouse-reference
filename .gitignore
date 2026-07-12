@@ -19,6 +19,7 @@ derby.log
 metastore_db/
 data/raw/
 data/delta/
+data/gold_sample/
 
 # Streamlit
 .streamlit/
