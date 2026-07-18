@@ -107,6 +107,37 @@ Negative inventory quantities are flagged with `negative_stock=true` but are not
 
 ---
 
+## Delta Lake Operations
+
+The layer modules rebuild each table with `overwrite` for reproducibility. Real ingestion is incremental, so `src/marketplace_lakehouse/delta_ops.py` demonstrates the operational primitives Delta Lake adds on top of plain Parquet — the topics that come up once a pipeline is in production:
+
+| Operation           | Function                                    | Why it matters                                                                             |
+| ------------------- | ------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| Idempotent upsert   | `merge_upsert(...)`                         | `MERGE` on business keys — replaying a batch after a partial failure never duplicates rows |
+| File compaction     | `optimize_table(...)`                       | `OPTIMIZE` (+ optional `ZORDER`) bin-packs small files and clusters for file skipping      |
+| Storage reclamation | `vacuum_table(...)`                         | `VACUUM` removes tombstoned files past the retention floor (default 7 days)                |
+| Audit trail         | `table_history(...)`                        | `DESCRIBE HISTORY` — every commit's operation, timestamp, and metrics                      |
+| Time travel         | `read_version(...)` / `latest_version(...)` | Reproduce last quarter's numbers by reading the table as of a prior version                |
+
+**Idempotent replay** is the headline property. Because `merge_upsert` matches on keys such as `order_id`, running the same batch twice leaves the table unchanged — verified in `tests/test_delta_ops.py::TestMergeUpsert::test_replaying_same_batch_is_idempotent`. The same tests show updates and inserts co-existing, and time travel returning a table's earlier state after an update.
+
+```python
+from marketplace_lakehouse.delta_ops import merge_upsert, optimize_table, read_version
+
+# Incremental, safe-to-retry ingestion
+merge_upsert(spark, clean_orders, silver_orders_path, key_cols=["order_id"])
+
+# Maintenance
+optimize_table(spark, silver_orders_path, zorder_by=["product_id"])
+
+# Reproduce a prior state
+snapshot = read_version(spark, silver_orders_path, version=3)
+```
+
+All operations are path-based, so they run identically on a laptop and on a Databricks workspace.
+
+---
+
 ## Repository Structure
 
 ```text
@@ -134,7 +165,8 @@ marketplace-lakehouse-reference/
 │       ├── bronze.py               # Raw ingestion
 │       ├── silver.py               # Validation, dedup, quarantine
 │       ├── gold.py                 # Business metrics
-│       └── quality.py              # Shared quality utilities
+│       ├── quality.py              # Shared quality utilities
+│       └── delta_ops.py            # MERGE upsert, OPTIMIZE/ZORDER, VACUUM, time travel
 │
 ├── notebooks/
 │   ├── 01_ingestion.py             # Bronze ingestion (Databricks)
@@ -150,7 +182,8 @@ marketplace-lakehouse-reference/
     ├── conftest.py                  # Shared SparkSession fixture
     ├── test_silver.py               # Silver acceptance tests
     ├── test_gold.py                 # Gold metric tests
-    └── test_quality.py              # Quality utility tests
+    ├── test_quality.py              # Quality utility tests
+    └── test_delta_ops.py            # MERGE idempotency & time-travel tests
 ```
 
 ---
