@@ -2,13 +2,15 @@
 Data quality utility tests.
 """
 
-import pytest
-from pyspark.sql.types import StructType, StructField, StringType, LongType
+import os
+import sys
 
-import sys, os
+import pytest
+from pyspark.sql.types import LongType, StringType, StructField, StructType
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
-from marketplace_lakehouse.quality import quarantine_summary, assert_no_nulls, assert_all_positive
+from marketplace_lakehouse.quality import assert_all_positive, assert_no_nulls, quarantine_summary
 
 
 class TestQualityUtils:

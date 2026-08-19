@@ -1,0 +1,15 @@
+name: Quality
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    uses: flipslidersand-labs/qa-workflows/.github/workflows/python-test.yml@main
+    with:
+      python-version: "3.12"
+      install-command: "pip install -e '.[dev]'"
+      run-tests: false

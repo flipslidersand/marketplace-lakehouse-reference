@@ -13,9 +13,10 @@
 # COMMAND ----------
 
 import sys
+
 sys.path.insert(0, "/Workspace/Repos/marketplace-lakehouse-reference/src")
 
-from marketplace_lakehouse.bronze import ingest_orders, ingest_inventory, ingest_price_events
+from marketplace_lakehouse.bronze import ingest_inventory, ingest_orders, ingest_price_events
 
 # COMMAND ----------
 

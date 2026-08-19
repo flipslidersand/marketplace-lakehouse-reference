@@ -9,11 +9,13 @@ Responsibilities:
 """
 
 from datetime import datetime, timezone
-from pyspark.sql import SparkSession, DataFrame
+
+from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql import functions as F
 from pyspark.sql.types import (
-    StructType, StructField,
-    StringType, LongType, DoubleType,
+    StringType,
+    StructField,
+    StructType,
 )
 
 

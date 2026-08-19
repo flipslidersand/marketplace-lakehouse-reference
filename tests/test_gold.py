@@ -5,23 +5,27 @@ Focus: business metric correctness — revenue calculation, inventory risk
 classification, price anomaly thresholds.
 """
 
+import os
+import sys
+
 import pytest
-from pyspark.sql import SparkSession
 from pyspark.sql import functions as F
 from pyspark.sql.types import (
-    StructType, StructField, StringType, LongType, DoubleType, TimestampType,
+    DoubleType,
+    LongType,
+    StringType,
+    StructField,
+    StructType,
+    TimestampType,
 )
 
-import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
 from marketplace_lakehouse.gold import (
     build_daily_revenue,
     build_inventory_risk,
     build_price_anomalies,
-    ANOMALY_THRESHOLD,
 )
-
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -72,7 +76,7 @@ def make_price_events(spark, rows):
 
 
 def _ts(s):
-    from datetime import datetime, timezone
+    from datetime import datetime
     return datetime.fromisoformat(s.replace("Z", "+00:00"))
 
 

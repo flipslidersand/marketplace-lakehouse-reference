@@ -15,6 +15,7 @@ data/gold_sample/ (populated by running the pipeline locally first).
 """
 
 import os
+
 import pandas as pd
 import streamlit as st
 from dotenv import load_dotenv
@@ -22,15 +23,15 @@ from dotenv import load_dotenv
 load_dotenv()
 
 import sys
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from app.databricks_client import (
-    fetch_kpi_summary,
-    fetch_inventory_risk,
-    fetch_price_anomalies,
     fetch_daily_revenue,
+    fetch_inventory_risk,
+    fetch_kpi_summary,
+    fetch_price_anomalies,
 )
-
 
 # ---------------------------------------------------------------------------
 # Page config

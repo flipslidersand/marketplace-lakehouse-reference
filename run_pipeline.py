@@ -17,11 +17,11 @@ import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "src"))
 
-from pyspark.sql import SparkSession
 from delta import configure_spark_with_delta_pip
+from pyspark.sql import SparkSession
 
 from generator.generate_events import main as generate_data
-from marketplace_lakehouse import bronze, silver, gold
+from marketplace_lakehouse import bronze, gold, silver
 
 BASE = os.path.dirname(__file__)
 DATA_SAMPLES = os.path.join(BASE, "data", "samples")
@@ -115,7 +115,7 @@ def main() -> None:
     print(f"  silver.price_events  {clean_pe.count():>5} clean  |  {quar_pe.count():>3} quarantined")
 
     from marketplace_lakehouse.quality import quarantine_summary
-    print(f"\n  Quarantine breakdown (orders):")
+    print("\n  Quarantine breakdown (orders):")
     for reason, count in quarantine_summary(quar_orders).items():
         print(f"    {reason:<30} {count}")
 
