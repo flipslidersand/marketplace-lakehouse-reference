@@ -2,7 +2,7 @@ name: Quality
 
 on:
   push:
-    branches: [main]
+    branches: [main, "feat/**", "fix/**"]
   pull_request:
     branches: [main]
 
@@ -11,5 +11,6 @@ jobs:
     uses: flipslidersand-labs/qa-workflows/.github/workflows/python-test.yml@main
     with:
       python-version: "3.12"
-      install-command: "pip install -e '.[dev]'"
+      install-command: "pip install pytest pytest-cov --quiet"
       run-tests: false
+      runner: ubuntu-latest
