@@ -25,13 +25,13 @@ Rules:
 Invalid records are written to quarantine tables, never silently dropped.
 """
 
-from pyspark.sql import SparkSession, DataFrame
+from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql import functions as F
 from pyspark.sql.types import (
-    StructType, StructField,
-    StringType, LongType, DoubleType, BooleanType, TimestampType,
+    DoubleType,
+    LongType,
+    StringType,
 )
-
 
 # ---------------------------------------------------------------------------
 # Orders

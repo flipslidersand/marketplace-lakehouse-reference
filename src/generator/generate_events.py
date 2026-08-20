@@ -6,10 +6,10 @@ data problems: nulls, duplicates, invalid timestamps, negative inventory,
 zero quantities, extreme price changes, missing fields, and schema drift.
 """
 
-import json
 import csv
-import random
+import json
 import os
+import random
 from datetime import datetime, timedelta, timezone
 
 OUTPUT_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "data", "samples")

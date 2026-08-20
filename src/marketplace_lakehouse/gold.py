@@ -10,10 +10,8 @@ All metrics are computed from Silver tables, which are already validated
 and deduplicated. Gold never re-introduces raw or invalid records.
 """
 
-from pyspark.sql import SparkSession, DataFrame
+from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql import functions as F
-from pyspark.sql.window import Window
-
 
 # ---------------------------------------------------------------------------
 # Daily Revenue

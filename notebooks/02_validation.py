@@ -16,10 +16,11 @@
 # COMMAND ----------
 
 import sys
+
 sys.path.insert(0, "/Workspace/Repos/marketplace-lakehouse-reference/src")
 
-from marketplace_lakehouse.silver import process_orders, process_inventory, process_price_events
 from marketplace_lakehouse.quality import quarantine_summary
+from marketplace_lakehouse.silver import process_inventory, process_orders, process_price_events
 
 # COMMAND ----------
 

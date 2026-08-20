@@ -13,6 +13,7 @@
 # COMMAND ----------
 
 import sys
+
 sys.path.insert(0, "/Workspace/Repos/marketplace-lakehouse-reference/src")
 
 from marketplace_lakehouse.gold import (
@@ -52,6 +53,7 @@ display(revenue.orderBy("date", "channel"))
 risk = build_inventory_risk(spark, SILVER_ORDERS, SILVER_INVENTORY, GOLD_INV_RISK)
 
 from pyspark.sql import functions as F
+
 print("Risk distribution:")
 display(risk.groupBy("risk_level").count())
 

@@ -8,6 +8,7 @@
 # COMMAND ----------
 
 import sys
+
 sys.path.insert(0, "/Workspace/Repos/marketplace-lakehouse-reference/src")
 
 from pyspark.sql import functions as F
@@ -61,6 +62,7 @@ print(f"Invalid quantities in Silver: {bad_qty}  (expected: 0)")
 # COMMAND ----------
 
 from marketplace_lakehouse.quality import quarantine_summary
+
 print("Quarantine breakdown:", quarantine_summary(quar_orders))
 display(quar_orders.select("order_id", "_quarantine_reason").groupBy("_quarantine_reason").count())
 

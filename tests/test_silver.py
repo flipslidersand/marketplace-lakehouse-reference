@@ -5,19 +5,24 @@ Focus: explicit business acceptance criteria, not line coverage.
 Each test verifies one specific data quality rule.
 """
 
-import pytest
-from datetime import datetime, timezone
+import os
+import sys
+
 from pyspark.sql import SparkSession
 from pyspark.sql import functions as F
 from pyspark.sql.types import (
-    StructType, StructField, StringType, LongType, DoubleType, TimestampType,
+    StringType,
+    StructField,
+    StructType,
 )
 
-import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
-from marketplace_lakehouse.silver import validate_orders, validate_inventory, validate_price_events
-
+from marketplace_lakehouse.silver import (
+    validate_inventory,
+    validate_orders,
+    validate_price_events,
+)
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -173,7 +178,7 @@ class TestInventoryValidation:
         df = self._make_inv(spark, quantity="-5")
         clean, quarantine = validate_inventory(df)
         assert clean.count() == 1
-        assert clean.filter(F.col("negative_stock") == True).count() == 1
+        assert clean.filter(F.col("negative_stock")).count() == 1
         assert quarantine.count() == 0
 
 
